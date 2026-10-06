@@ -1,4 +1,4 @@
--- [[ NOLIX HUB - Premium Dark Redesign ]] --
+-- [[ NOLIX HUB - ELITE EDITION + CLEANER ]] --
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local CoreGui = game:GetService("CoreGui")
@@ -6,6 +6,7 @@ local Lighting = game:GetService("Lighting")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
+local Terrain = Workspace:FindFirstChildOfClass("Terrain")
 
 local player = Players.LocalPlayer
 
@@ -36,7 +37,7 @@ mainStroke.Color = Color3.fromRGB(45, 45, 65)
 mainStroke.Thickness = 1
 mainStroke.Parent = mainFrame
 
--- Тень окна (эффект глубины)
+-- Тень окна
 local dropShadow = Instance.new("ImageLabel")
 dropShadow.AnchorPoint = Vector2.new(0.5, 0.5)
 dropShadow.BackgroundTransparency = 1
@@ -62,7 +63,6 @@ local titleCorner = Instance.new("UICorner")
 titleCorner.CornerRadius = UDim.new(0, 14)
 titleCorner.Parent = titleBar
 
--- Убираем скругление снизу для шапки
 local fixBar = Instance.new("Frame")
 fixBar.Size = UDim2.new(1, 0, 0, 10)
 fixBar.Position = UDim2.new(0, 0, 1, -10)
@@ -253,7 +253,7 @@ RunService.Stepped:Connect(function()
     end
 end)
 
--- 2. Inspector (Интерактивный сканер с выводом в окно)
+-- 2. Inspector (Сканер)
 local inspectorTab = createTab("📦 Inspector")
 
 local outputBox = Instance.new("ScrollingFrame")
@@ -316,12 +316,42 @@ createButton(worldTab, "💡 Fullbright (Подсветка карты)", functi
     Lighting.GlobalShadows = false
 end)
 
-createButton(worldTab, "☀️ Установить День", function()
+createButton(worldTab, "☀️️ Установить День", function()
     Lighting.ClockTime = 12
 end)
 
 createButton(worldTab, "🌙 Установить Ночь", function()
     Lighting.ClockTime = 0
+end)
+
+-- 4. Cleaner (Очистка кэша и мусора для поднятия FPS)
+local cleanerTab = createTab("🧹 Cleaner")
+
+createButton(cleanerTab, "🗑️ Очистить кэш (Удалить старые партиклы и GUI)", function()
+    local count = 0
+    -- Удаляем лишние старые эффекты и неиспользуемые GUI с экрана
+    for _, obj in pairs(Workspace:GetDescendants()) do
+        if obj:IsA("ParticleEmitter") or obj:IsA("Fire") or obj:IsA("Smoke") or obj:IsA("Sparkles") then
+            obj:Destroy()
+            count = count + 1
+        end
+    end
+    print("🧹 [Nolix Cleaner] Очищено тяжелых эффектов: " .. count)
+end)
+
+createButton(cleanerTab, "💨 Убрать туман и оптимизировать графику", function()
+    Lighting.FogEnd = 999999
+    Lighting.GlobalShadows = false
+    for _, effect in pairs(Lighting:GetChildren()) do
+        if effect:IsA("PostEffect") then
+            effect.Enabled = false
+        end
+    end
+    if Terrain then
+        Terrain.WaterWaveSize = 0
+        Terrain.WaterWaveTransparency = 1
+        Terrain.WaterTransparency = 0
+    end
 end)
 
 -- Перетаскивание окна мышкой
